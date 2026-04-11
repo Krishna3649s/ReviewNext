@@ -1391,6 +1391,16 @@
     el.style.transition = `opacity 0.5s ${i * 0.07}s ease, transform 0.5s ${i * 0.07}s ease`;
     observer.observe(el);
   });
+  document.querySelector('.hero-search button').addEventListener('click', () => {
+  const query = document.querySelector('.hero-search input').value.toLowerCase();
+
+  if(query.includes("air force") || query.includes("nike")) {
+    window.location.href = "airforce1.html";
+  } 
+  else {
+    alert("Product not added yet 😅");
+  }
+});
 </script>
 </body>
 </html>
