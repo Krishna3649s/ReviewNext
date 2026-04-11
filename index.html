@@ -1384,22 +1384,20 @@
       }
     });
   }, { threshold: 0.08 });
+  document.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.querySelector('input');
+    if(!input) return;
 
-  document.querySelectorAll('.source-card, .step-item, .brand-card, .trust-item, .demo-review, .stat-item').forEach((el, i) => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(16px)';
-    el.style.transition = `opacity 0.5s ${i * 0.07}s ease, transform 0.5s ${i * 0.07}s ease`;
-    observer.observe(el);
+    const query = input.value.toLowerCase();
+
+    if(query.includes("air force") || query.includes("nike")) {
+      window.location.href = "airforce1.html";
+    } 
+    else {
+      alert("Product not added yet 😅");
+    }
   });
-  document.querySelector('.hero-search button').addEventListener('click', () => {
-  const query = document.querySelector('.hero-search input').value.toLowerCase();
-
-  if(query.includes("air force") || query.includes("nike")) {
-    window.location.href = "airforce1.html";
-  } 
-  else {
-    alert("Product not added yet 😅");
-  }
 });
 </script>
 </body>
