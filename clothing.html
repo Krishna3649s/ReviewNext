@@ -1,13 +1,868 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Clothing</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Clothing Reviews — ReviewNest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f7f5;
+    --border: #e8e8e2;
+    --border2: #d4d4cc;
+    --text: #1a1a18;
+    --text2: #4a4a44;
+    --muted: #9a9a90;
+    --accent: #1a6b3c;
+    --accent-light: #e8f4ed;
+    --accent2: #c0392b;
+    --accent2-light: #fdf0ef;
+    --gold: #b5860d;
+    --gold-light: #fdf8ed;
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Outfit', sans-serif;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255,255,255,0.93); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 60px; height: 68px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -0.3px; text-decoration: none; color: var(--text); }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a { color: var(--text2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-right { display: flex; gap: 12px; align-items: center; }
+  .btn-nav-ghost { padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--text); border: 1px solid var(--border2); background: transparent; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+  .btn-nav-ghost:hover { border-color: var(--text); }
+  .btn-nav-primary { padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; color: #fff; background: var(--accent); border: none; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+  .btn-nav-primary:hover { background: #155c32; transform: translateY(-1px); }
+
+  /* BREADCRUMB */
+  .breadcrumb {
+    padding: 88px 60px 0;
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted);
+  }
+  .breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .breadcrumb a:hover { color: var(--accent); }
+  .breadcrumb span { color: var(--text2); font-weight: 500; }
+
+  /* PAGE HERO */
+  .page-hero {
+    padding: 32px 60px 60px;
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 40px; align-items: end;
+  }
+  .page-hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-light);
+    padding: 6px 14px; border-radius: 100px; margin-bottom: 16px;
+  }
+  .page-hero-eyebrow::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+  .page-title { font-family: var(--font-display); font-size: clamp(36px,5vw,56px); font-weight: 700; line-height: 1.1; letter-spacing: -1px; margin-bottom: 16px; }
+  .page-title em { font-style: italic; color: var(--accent); }
+  .page-desc { font-size: 16px; color: var(--text2); line-height: 1.7; font-weight: 300; max-width: 520px; }
+  .page-stats { display: flex; gap: 32px; flex-shrink: 0; }
+  .page-stat { text-align: center; padding: 20px 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+  .page-stat-num { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .page-stat-label { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.5px; margin-top: 4px; text-transform: uppercase; }
+
+  /* SEARCH + FILTER BAR */
+  .filter-bar {
+    background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 20px 60px;
+    position: sticky; top: 68px; z-index: 50;
+  }
+  .filter-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .filter-search { display: flex; background: var(--bg); border: 1.5px solid var(--border2); border-radius: 8px; overflow: hidden; flex: 1; max-width: 360px; }
+  .filter-search:focus-within { border-color: var(--accent); }
+  .filter-search input { flex: 1; border: none; outline: none; padding: 10px 16px; font-family: var(--font-body); font-size: 14px; color: var(--text); background: transparent; }
+  .filter-search input::placeholder { color: var(--muted); }
+  .filter-search button { background: var(--accent); border: none; padding: 0 16px; color: #fff; font-size: 14px; cursor: pointer; }
+  .filter-divider { width: 1px; height: 32px; background: var(--border2); }
+  .filter-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .filter-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-btn { padding: 8px 16px; font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--text2); border: 1px solid var(--border); background: var(--bg); border-radius: 100px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .filter-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); font-weight: 600; }
+  .sort-select { padding: 9px 14px; font-family: var(--font-body); font-size: 13px; color: var(--text); border: 1px solid var(--border2); border-radius: 8px; background: var(--bg); cursor: pointer; outline: none; margin-left: auto; }
+
+  /* NOTICE BANNER */
+  .notice-banner {
+    background: var(--gold-light); border-bottom: 1px solid #e8d5a0;
+    padding: 14px 60px;
+  }
+  .notice-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--gold); font-weight: 500; }
+
+  /* MAIN CONTENT */
+  .main-content { padding: 48px 60px; max-width: 1200px; margin: 0 auto; }
+
+  /* SECTION HEADER */
+  .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; }
+  .section-heading { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+  .section-count { font-size: 13px; color: var(--muted); font-weight: 400; }
+
+  /* BRAND SPOTLIGHT */
+  .brand-spotlight {
+    background: var(--text); border-radius: 16px; padding: 40px;
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 40px; align-items: center; margin-bottom: 48px;
+    position: relative; overflow: hidden;
+  }
+  .brand-spotlight::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(26,107,60,0.3), transparent);
+    border-radius: 50%;
+  }
+  .spotlight-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #6ee7a0; margin-bottom: 12px; }
+  .spotlight-title { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 8px; }
+  .spotlight-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+  .spotlight-desc { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; font-weight: 300; max-width: 480px; margin-bottom: 24px; }
+  .spotlight-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .spotlight-tag-item { padding: 5px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 100px; font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500; }
+  .spotlight-actions { display: flex; gap: 12px; }
+  .btn-spotlight { padding: 11px 24px; font-family: var(--font-body); font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+  .btn-spotlight.primary { background: var(--accent); color: #fff; border: none; }
+  .btn-spotlight.primary:hover { background: #155c32; }
+  .btn-spotlight.ghost { background: transparent; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.2); }
+  .btn-spotlight.ghost:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+  .spotlight-score-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 32px 28px; text-align: center; flex-shrink: 0; }
+  .spotlight-score-num { font-family: var(--font-display); font-size: 64px; font-weight: 700; color: #6ee7a0; line-height: 1; }
+  .spotlight-score-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; margin-top: 6px; }
+  .spotlight-sources { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .spotlight-source-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.5); }
+  .spotlight-source-row span { color: #f59e0b; }
+
+  /* PRODUCTS GRID */
+  .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 60px; }
+
+  .product-card { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: all 0.25s; cursor: pointer; }
+  .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--border2); }
+
+  .product-card-top { padding: 24px 24px 20px; border-bottom: 1px solid var(--border); background: var(--bg2); display: flex; align-items: center; gap: 14px; }
+  .product-img { width: 52px; height: 52px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .product-info { flex: 1; }
+  .product-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; letter-spacing: -0.2px; }
+  .product-brand { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+  .product-price { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 2px; }
+  .product-score-badge { background: var(--accent-light); padding: 8px 12px; border-radius: 8px; text-align: center; flex-shrink: 0; }
+  .product-score-num { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .product-score-label { font-size: 9px; color: var(--accent); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .product-card-body { padding: 18px 24px; }
+  .product-sources { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .mini-source-row { display: flex; align-items: center; gap: 8px; }
+  .mini-source-icon { font-size: 13px; width: 24px; text-align: center; }
+  .mini-source-name { font-size: 12px; font-weight: 600; min-width: 60px; color: var(--text2); }
+  .mini-stars { color: #f59e0b; font-size: 11px; flex: 1; }
+  .mini-count { font-size: 11px; color: var(--muted); }
+
+  .product-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+  .product-tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 100px; background: var(--bg2); border: 1px solid var(--border); color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .product-tag.new { background: #eff6ff; border-color: #bfdbfe; color: #3b82f6; }
+  .product-tag.trending { background: #fff7ed; border-color: #fed7aa; color: #ea580c; }
+  .product-tag.instagram { background: #fdf4ff; border-color: #e9d5ff; color: #9333ea; }
+
+  /* BRAND CARDS */
+  .brands-section { margin-bottom: 60px; }
+  .brands-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .brand-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 24px; transition: all 0.25s; }
+  .brand-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .brand-card-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .brand-avatar { width: 44px; height: 44px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .brand-card-name { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .brand-card-type { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.5px; }
+  .brand-card-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 16px; }
+  .brand-card-stats { display: flex; gap: 16px; margin-bottom: 14px; }
+  .brand-stat { text-align: center; flex: 1; }
+  .brand-stat-num { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; }
+  .brand-stat-label { font-size: 10px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+  .brand-card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .verified-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-light); padding: 4px 10px; border-radius: 100px; }
+  .instagram-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #9333ea; background: #fdf4ff; padding: 4px 10px; border-radius: 100px; border: 1px solid #e9d5ff; }
+
+  /* REVIEW DEEP DIVE */
+  .review-deepdive { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 60px; }
+  .review-deepdive-header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; background: var(--bg); }
+  .review-deepdive-img { width: 52px; height: 52px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .review-deepdive-info h3 { font-size: 17px; font-weight: 600; margin-bottom: 3px; }
+  .review-deepdive-info p { font-size: 13px; color: var(--muted); }
+  .review-deepdive-score { margin-left: auto; background: var(--accent-light); padding: 12px 20px; border-radius: 10px; text-align: center; }
+  .deepdive-score-num { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .deepdive-score-label { font-size: 10px; color: var(--accent); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+  .review-sources-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .review-source-col { padding: 24px; border-right: 1px solid var(--border); background: var(--bg); }
+  .review-source-col:last-child { border-right: none; }
+  .review-source-col:hover { background: var(--bg2); }
+  .review-source-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .review-source-icon { width: 32px; height: 32px; background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .review-source-name { font-size: 13px; font-weight: 600; }
+  .review-stars { color: #f59e0b; font-size: 13px; margin-bottom: 10px; }
+  .review-text { font-size: 12px; color: var(--text2); line-height: 1.65; font-style: italic; font-weight: 300; }
+  .review-count { font-size: 11px; color: var(--muted); margin-top: 10px; font-weight: 500; }
+  .review-summary { padding: 20px 24px; border-top: 1px solid var(--border); background: var(--bg2); display: flex; gap: 24px; align-items: center; }
+  .summary-pros { flex: 1; }
+  .summary-cons { flex: 1; }
+  .summary-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .summary-title.pros { color: var(--accent); }
+  .summary-title.cons { color: var(--accent2); }
+  .summary-item { font-size: 12px; color: var(--text2); display: flex; gap: 6px; align-items: flex-start; margin-bottom: 4px; font-weight: 300; }
+  .summary-item::before { font-size: 11px; margin-top: 1px; flex-shrink: 0; }
+  .summary-item.pro::before { content: '✓'; color: var(--accent); font-weight: 700; }
+  .summary-item.con::before { content: '✗'; color: var(--accent2); font-weight: 700; }
+
+  /* SUBMIT BRAND */
+  .submit-section { background: var(--accent); border-radius: 16px; padding: 40px; text-align: center; margin-bottom: 60px; }
+  .submit-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+  .submit-desc { font-size: 15px; color: rgba(255,255,255,0.75); margin-bottom: 28px; font-weight: 300; }
+  .submit-form { display: flex; gap: 0; max-width: 480px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+  .submit-form input { flex: 1; border: none; outline: none; padding: 14px 18px; font-family: var(--font-body); font-size: 14px; color: var(--text); }
+  .submit-form input::placeholder { color: var(--muted); }
+  .submit-form button { background: var(--text); border: none; padding: 0 20px; color: #fff; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+  .submit-form button:hover { background: #000; }
+
+  /* FOOTER */
+  footer { background: var(--text); padding: 48px 60px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; border-top: 1px solid var(--border); }
+  .footer-logo { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: #fff; }
+  .footer-logo span { color: #6ee7a0; }
+  .footer-links { display: flex; gap: 28px; list-style: none; }
+  .footer-links a { font-size: 13px; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: rgba(255,255,255,0.8); }
+  .footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .breadcrumb { padding: 88px 20px 0; }
+    .page-hero { padding: 24px 20px 40px; grid-template-columns: 1fr; }
+    .page-stats { display: none; }
+    .filter-bar { padding: 16px 20px; top: 68px; }
+    .notice-banner { padding: 12px 20px; }
+    .main-content { padding: 32px 20px; }
+    .brand-spotlight { grid-template-columns: 1fr; }
+    .spotlight-score-card { display: none; }
+    .products-grid { grid-template-columns: 1fr 1fr; }
+    .brands-row { grid-template-columns: 1fr 1fr; }
+    .review-sources-grid { grid-template-columns: 1fr; }
+    .review-source-col { border-right: none; border-bottom: 1px solid var(--border); }
+    .review-summary { flex-direction: column; gap: 16px; }
+    .submit-form { flex-direction: column; }
+    .submit-form input { border-radius: 8px 8px 0 0; }
+    .submit-form button { padding: 14px; }
+    footer { padding: 32px 20px; flex-direction: column; align-items: flex-start; }
+  }
+  @media (max-width: 500px) {
+    .products-grid { grid-template-columns: 1fr; }
+    .brands-row { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
-<body style="background:#111;color:white;font-family:Arial;padding:20px;">
+<body>
 
-<h1>👕 Clothing</h1>
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">Review<span>Nest</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html#categories">Categories</a></li>
+    <li><a href="index.html#trending">Trending</a></li>
+    <li><a href="index.html#brands">New Brands</a></li>
+    <li><a href="index.html#trust">Why Trust Us</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-nav-ghost">Sign In</button>
+    <button class="btn-nav-primary">Get Early Access</button>
+  </div>
+</nav>
 
-<p>Products coming soon...</p>
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="index.html">Home</a>
+  <span>›</span>
+  <span>Clothing & Fashion</span>
+</div>
 
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div>
+    <div class="page-hero-eyebrow">👕 Category</div>
+    <h1 class="page-title">Clothing &<br/><em>Fashion</em></h1>
+    <p class="page-desc">Real reviews for small Indian Instagram brands you can't find anywhere else. From streetwear drops to everyday fits — we cover them all.</p>
+  </div>
+  <div class="page-stats">
+    <div class="page-stat">
+      <div class="page-stat-num">6</div>
+      <div class="page-stat-label">Brands</div>
+    </div>
+    <div class="page-stat">
+      <div class="page-stat-num">580+</div>
+      <div class="page-stat-label">Products</div>
+    </div>
+    <div class="page-stat">
+      <div class="page-stat-num">0</div>
+      <div class="page-stat-label">Paid Reviews</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <div class="filter-inner">
+    <div class="filter-search">
+      <input type="text" id="clothingSearch" placeholder="Search clothing..."/>
+      <button onclick="handleClothingSearch()">🔍</button>
+    </div>
+    <div class="filter-divider"></div>
+    <span class="filter-label">Filter:</span>
+    <div class="filter-btns">
+      <button class="filter-btn active" onclick="filterProducts('all', this)">All</button>
+      <button class="filter-btn" onclick="filterProducts('tshirt', this)">T-Shirts</button>
+      <button class="filter-btn" onclick="filterProducts('hoodie', this)">Hoodies</button>
+      <button class="filter-btn" onclick="filterProducts('jeans', this)">Jeans</button>
+      <button class="filter-btn" onclick="filterProducts('shirt', this)">Shirts</button>
+      <button class="filter-btn" onclick="filterProducts('coords', this)">Co-ords</button>
+    </div>
+    <select class="sort-select" onchange="handleSort(this.value)">
+      <option value="trust">Sort: Highest Trust Score</option>
+      <option value="reviews">Sort: Most Reviews</option>
+      <option value="newest">Sort: Newest</option>
+    </select>
+  </div>
+</div>
+
+<!-- NOTICE BANNER -->
+<div class="notice-banner">
+  <div class="notice-inner">
+    ⚠️ <strong>Heads up:</strong> These are small Instagram brands. We collect reviews from Instagram comments, Reddit threads and YouTube. Always check before you buy — that's why we exist!
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <!-- BRAND SPOTLIGHT: BLURGVILLAGE -->
+  <div class="section-header">
+    <div class="section-heading">✨ Brand Spotlight</div>
+  </div>
+
+  <div class="brand-spotlight">
+    <div>
+      <div class="spotlight-tag">⭐ Featured Brand</div>
+      <div class="spotlight-title">Blurgvillage</div>
+      <div class="spotlight-subtitle">Indian Streetwear · Instagram Brand</div>
+      <div class="spotlight-desc">A small but fast-growing Indian Instagram brand known for their clean minimal jeans, relaxed fit shirts and premium belts. Quality that punches way above its price point — exactly the kind of brand your site was made for.</div>
+      <div class="spotlight-tags">
+        <span class="spotlight-tag-item">👖 Jeans</span>
+        <span class="spotlight-tag-item">👔 Shirts</span>
+        <span class="spotlight-tag-item">🪢 Belts</span>
+        <span class="spotlight-tag-item">🇮🇳 Indian Brand</span>
+        <span class="spotlight-tag-item">📸 Instagram</span>
+      </div>
+      <div class="spotlight-actions">
+        <button class="btn-spotlight primary">See All Reviews</button>
+        <button class="btn-spotlight ghost">Visit Instagram</button>
+      </div>
+    </div>
+    <div class="spotlight-score-card">
+      <div class="spotlight-score-num">86</div>
+      <div class="spotlight-score-label">Trust Score</div>
+      <div class="spotlight-sources">
+        <div class="spotlight-source-row">📸 Instagram <span>★★★★☆</span></div>
+        <div class="spotlight-source-row">👽 Reddit <span>★★★★☆</span></div>
+        <div class="spotlight-source-row">▶️ YouTube <span>★★★★★</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="section-header">
+    <div class="section-heading">All Products <span class="section-count">— 12 products</span></div>
+  </div>
+
+  <div class="products-grid" id="productsGrid">
+
+    <!-- Blurgvillage Jeans -->
+    <div class="product-card" data-category="jeans">
+      <div class="product-card-top">
+        <div class="product-img">👖</div>
+        <div class="product-info">
+          <div class="product-brand">Blurgvillage</div>
+          <div class="product-name">Classic Slim Fit Jeans</div>
+          <div class="product-price">₹1,499</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">88</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★☆</div><div class="mini-count">240+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">👽</div><div class="mini-source-name">Reddit</div><div class="mini-stars">★★★★★</div><div class="mini-count">3 threads</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">▶️</div><div class="mini-source-name">YouTube</div><div class="mini-stars">★★★★☆</div><div class="mini-count">2 reviews</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag trending">🔥 Trending</span>
+          <span class="product-tag instagram">📸 Instagram</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blurgvillage Shirt -->
+    <div class="product-card" data-category="shirt">
+      <div class="product-card-top">
+        <div class="product-img">👔</div>
+        <div class="product-info">
+          <div class="product-brand">Blurgvillage</div>
+          <div class="product-name">Oversized Relaxed Shirt</div>
+          <div class="product-price">₹999</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">84</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★☆</div><div class="mini-count">180+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">👽</div><div class="mini-source-name">Reddit</div><div class="mini-stars">★★★★☆</div><div class="mini-count">2 threads</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag new">✨ New</span>
+          <span class="product-tag instagram">📸 Instagram</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jaywalking -->
+    <div class="product-card" data-category="shirt">
+      <div class="product-card-top">
+        <div class="product-img">🧥</div>
+        <div class="product-info">
+          <div class="product-brand">Jaywalking</div>
+          <div class="product-name">Boxy Utility Shirt</div>
+          <div class="product-price">₹2,200</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">91</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★★</div><div class="mini-count">520+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">▶️</div><div class="mini-source-name">YouTube</div><div class="mini-stars">★★★★★</div><div class="mini-count">5 reviews</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">👽</div><div class="mini-source-name">Reddit</div><div class="mini-stars">★★★★☆</div><div class="mini-count">4 threads</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag trending">🔥 Trending</span>
+          <span class="product-tag instagram">📸 Instagram</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drippin Moncky -->
+    <div class="product-card" data-category="tshirt">
+      <div class="product-card-top">
+        <div class="product-img">👕</div>
+        <div class="product-info">
+          <div class="product-brand">Drippin Moncky</div>
+          <div class="product-name">Boxy Graphic Tee</div>
+          <div class="product-price">₹1,199</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">82</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★☆</div><div class="mini-count">310+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">👽</div><div class="mini-source-name">Reddit</div><div class="mini-stars">★★★★☆</div><div class="mini-count">2 threads</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag new">✨ New</span>
+          <span class="product-tag instagram">📸 Instagram</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drippin Moncky Hoodie -->
+    <div class="product-card" data-category="hoodie">
+      <div class="product-card-top">
+        <div class="product-img">🫧</div>
+        <div class="product-info">
+          <div class="product-brand">Drippin Moncky</div>
+          <div class="product-name">Unisex Baggy Hoodie</div>
+          <div class="product-price">₹1,799</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">85</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★☆</div><div class="mini-count">280+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">▶️</div><div class="mini-source-name">YouTube</div><div class="mini-stars">★★★★★</div><div class="mini-count">3 reviews</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag trending">🔥 Trending</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Eggwhites -->
+    <div class="product-card" data-category="tshirt">
+      <div class="product-card-top">
+        <div class="product-img">🥚</div>
+        <div class="product-info">
+          <div class="product-brand">Eggwhites</div>
+          <div class="product-name">Ex Graphic Tee</div>
+          <div class="product-price">₹999</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">79</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★☆</div><div class="mini-count">190+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">👽</div><div class="mini-source-name">Reddit</div><div class="mini-stars">★★★☆☆</div><div class="mini-count">1 thread</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag new">✨ New</span>
+          <span class="product-tag instagram">📸 Instagram</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Farak -->
+    <div class="product-card" data-category="hoodie">
+      <div class="product-card-top">
+        <div class="product-img">🌀</div>
+        <div class="product-info">
+          <div class="product-brand">Farak</div>
+          <div class="product-name">Oversized Statement Hoodie</div>
+          <div class="product-price">₹2,499</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">87</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★★</div><div class="mini-count">400+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">▶️</div><div class="mini-source-name">YouTube</div><div class="mini-stars">★★★★☆</div><div class="mini-count">2 reviews</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">👽</div><div class="mini-source-name">Reddit</div><div class="mini-stars">★★★★☆</div><div class="mini-count">3 threads</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag trending">🔥 Trending</span>
+          <span class="product-tag instagram">📸 Instagram</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Genrage -->
+    <div class="product-card" data-category="jeans">
+      <div class="product-card-top">
+        <div class="product-img">👖</div>
+        <div class="product-info">
+          <div class="product-brand">Genrage</div>
+          <div class="product-name">Baggy Denim Jeans</div>
+          <div class="product-price">₹1,299</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">80</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★☆</div><div class="mini-count">220+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">👽</div><div class="mini-source-name">Reddit</div><div class="mini-stars">★★★★☆</div><div class="mini-count">2 threads</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag new">✨ New</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Farak Co-ord -->
+    <div class="product-card" data-category="coords">
+      <div class="product-card-top">
+        <div class="product-img">🎽</div>
+        <div class="product-info">
+          <div class="product-brand">Farak</div>
+          <div class="product-name">Relaxed Co-ord Set</div>
+          <div class="product-price">₹3,199</div>
+        </div>
+        <div class="product-score-badge">
+          <div class="product-score-num">89</div>
+          <div class="product-score-label">Trust</div>
+        </div>
+      </div>
+      <div class="product-card-body">
+        <div class="product-sources">
+          <div class="mini-source-row"><div class="mini-source-icon">📸</div><div class="mini-source-name">Instagram</div><div class="mini-stars">★★★★★</div><div class="mini-count">360+ comments</div></div>
+          <div class="mini-source-row"><div class="mini-source-icon">▶️</div><div class="mini-source-name">YouTube</div><div class="mini-stars">★★★★★</div><div class="mini-count">3 reviews</div></div>
+        </div>
+        <div class="product-tags">
+          <span class="product-tag trending">🔥 Trending</span>
+          <span class="product-tag instagram">📸 Instagram</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DEEP DIVE REVIEW -->
+  <div class="section-header">
+    <div class="section-heading">📊 Deep Dive — Blurgvillage Jeans</div>
+  </div>
+
+  <div class="review-deepdive">
+    <div class="review-deepdive-header">
+      <div class="review-deepdive-img">👖</div>
+      <div class="review-deepdive-info">
+        <h3>Blurgvillage Classic Slim Fit Jeans</h3>
+        <p>Small Indian Instagram Brand · ₹1,499</p>
+      </div>
+      <div class="review-deepdive-score">
+        <div class="deepdive-score-num">88</div>
+        <div class="deepdive-score-label">Trust Score</div>
+      </div>
+    </div>
+    <div class="review-sources-grid">
+      <div class="review-source-col">
+        <div class="review-source-header"><div class="review-source-icon">📸</div><div class="review-source-name">Instagram Comments</div></div>
+        <div class="review-stars">★★★★☆</div>
+        <div class="review-text">"Quality is actually insane for the price. The denim feels premium, stitching is clean. Wore it 10+ times, no fading. Blurgvillage never disappoints 🔥"</div>
+        <div class="review-count">From 240+ Instagram comments</div>
+      </div>
+      <div class="review-source-col">
+        <div class="review-source-header"><div class="review-source-icon">👽</div><div class="review-source-name">Reddit India</div></div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Bought these after seeing them on Instagram, zero regrets. Fit is perfect, delivery was quick. Much better quality than Bewakoof at the same price."</div>
+        <div class="review-count">From 3 Reddit threads</div>
+      </div>
+      <div class="review-source-col">
+        <div class="review-source-header"><div class="review-source-icon">▶️</div><div class="review-source-name">YouTube Reviews</div></div>
+        <div class="review-stars">★★★★☆</div>
+        <div class="review-text">"Two Indian fashion YouTubers reviewed these — both praised the denim quality and slim fit. One said sizing runs slightly small, recommend going one size up."</div>
+        <div class="review-count">From 2 YouTube reviews</div>
+      </div>
+    </div>
+    <div class="review-summary">
+      <div class="summary-pros">
+        <div class="summary-title pros">✓ What people love</div>
+        <div class="summary-item pro">Premium denim quality for the price</div>
+        <div class="summary-item pro">Clean stitching and finish</div>
+        <div class="summary-item pro">No fading after multiple washes</div>
+        <div class="summary-item pro">Fast delivery from Instagram DM orders</div>
+      </div>
+      <div class="summary-cons">
+        <div class="summary-title cons">✗ Common complaints</div>
+        <div class="summary-item con">Sizing runs slightly small</div>
+        <div class="summary-item con">Limited colour options currently</div>
+        <div class="summary-item con">No easy return policy yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRANDS OVERVIEW -->
+  <div class="section-header">
+    <div class="section-heading">🏷️ Brands on this page <span class="section-count">— 6 brands</span></div>
+  </div>
+
+  <div class="brands-section">
+    <div class="brands-row">
+      <div class="brand-card">
+        <div class="brand-card-top"><div class="brand-avatar">🌫️</div><div><div class="brand-card-name">Blurgvillage</div><div class="brand-card-type">Jeans · Shirts · Belts</div></div></div>
+        <hr class="brand-card-divider"/>
+        <div class="brand-card-stats">
+          <div class="brand-stat"><div class="brand-stat-num">86</div><div class="brand-stat-label">Trust Score</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">3</div><div class="brand-stat-label">Products</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">420+</div><div class="brand-stat-label">Reviews</div></div>
+        </div>
+        <div class="brand-card-footer"><div class="verified-badge">✓ Verified</div><div class="instagram-badge">📸 Instagram</div></div>
+      </div>
+
+      <div class="brand-card">
+        <div class="brand-card-top"><div class="brand-avatar">🚶</div><div><div class="brand-card-name">Jaywalking</div><div class="brand-card-type">Streetwear · Shirts · Pants</div></div></div>
+        <hr class="brand-card-divider"/>
+        <div class="brand-card-stats">
+          <div class="brand-stat"><div class="brand-stat-num">91</div><div class="brand-stat-label">Trust Score</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">8</div><div class="brand-stat-label">Products</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">1.2k+</div><div class="brand-stat-label">Reviews</div></div>
+        </div>
+        <div class="brand-card-footer"><div class="verified-badge">✓ Verified</div><div class="instagram-badge">📸 Instagram</div></div>
+      </div>
+
+      <div class="brand-card">
+        <div class="brand-card-top"><div class="brand-avatar">🐒</div><div><div class="brand-card-name">Drippin Moncky</div><div class="brand-card-type">Tees · Hoodies · Co-ords</div></div></div>
+        <hr class="brand-card-divider"/>
+        <div class="brand-card-stats">
+          <div class="brand-stat"><div class="brand-stat-num">83</div><div class="brand-stat-label">Trust Score</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">6</div><div class="brand-stat-label">Products</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">590+</div><div class="brand-stat-label">Reviews</div></div>
+        </div>
+        <div class="brand-card-footer"><div class="verified-badge">✓ Verified</div><div class="instagram-badge">📸 Instagram</div></div>
+      </div>
+
+      <div class="brand-card">
+        <div class="brand-card-top"><div class="brand-avatar">🥚</div><div><div class="brand-card-name">Eggwhites</div><div class="brand-card-type">Graphic Tees · Streetwear</div></div></div>
+        <hr class="brand-card-divider"/>
+        <div class="brand-card-stats">
+          <div class="brand-stat"><div class="brand-stat-num">79</div><div class="brand-stat-label">Trust Score</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">4</div><div class="brand-stat-label">Products</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">190+</div><div class="brand-stat-label">Reviews</div></div>
+        </div>
+        <div class="brand-card-footer"><div class="verified-badge">✓ Verified</div><div class="instagram-badge">📸 Instagram</div></div>
+      </div>
+
+      <div class="brand-card">
+        <div class="brand-card-top"><div class="brand-avatar">🌀</div><div><div class="brand-card-name">Farak</div><div class="brand-card-type">Hoodies · Co-ords · Tees</div></div></div>
+        <hr class="brand-card-divider"/>
+        <div class="brand-card-stats">
+          <div class="brand-stat"><div class="brand-stat-num">88</div><div class="brand-stat-label">Trust Score</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">7</div><div class="brand-stat-label">Products</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">760+</div><div class="brand-stat-label">Reviews</div></div>
+        </div>
+        <div class="brand-card-footer"><div class="verified-badge">✓ Verified</div><div class="instagram-badge">📸 Instagram</div></div>
+      </div>
+
+      <div class="brand-card">
+        <div class="brand-card-top"><div class="brand-avatar">💥</div><div><div class="brand-card-name">Genrage</div><div class="brand-card-type">Baggy Denims · Hoodies</div></div></div>
+        <hr class="brand-card-divider"/>
+        <div class="brand-card-stats">
+          <div class="brand-stat"><div class="brand-stat-num">80</div><div class="brand-stat-label">Trust Score</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">5</div><div class="brand-stat-label">Products</div></div>
+          <div class="brand-stat"><div class="brand-stat-num">220+</div><div class="brand-stat-label">Reviews</div></div>
+        </div>
+        <div class="brand-card-footer"><div class="verified-badge">✓ Verified</div><div class="instagram-badge">📸 Instagram</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT A BRAND -->
+  <div class="submit-section">
+    <div class="submit-title">Know a brand we missed? 👀</div>
+    <div class="submit-desc">If there's a small Indian Instagram clothing brand you want reviewed — submit it and we'll add it to the list.</div>
+    <div class="submit-form">
+      <input type="text" placeholder="Brand name or Instagram handle (@blurgvillage)"/>
+      <button onclick="handleBrandSubmit()">Submit Brand</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Review<span>Nest</span></div>
+  <ul class="footer-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="sneakers.html">Sneakers</a></li>
+    <li><a href="accessories.html">Accessories</a></li>
+    <li><a href="#">Submit a Brand</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <div class="footer-copy">© 2025 ReviewNest · Made in India 🇮🇳</div>
+</footer>
+
+<script>
+  // SEARCH
+  function handleClothingSearch() {
+    const q = document.getElementById('clothingSearch').value.toLowerCase().trim();
+    if (!q) return;
+    const cards = document.querySelectorAll('.product-card');
+    let found = false;
+    cards.forEach(card => {
+      const text = card.innerText.toLowerCase();
+      if (text.includes(q)) {
+        card.style.display = 'block';
+        card.style.border = '2px solid var(--accent)';
+        found = true;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    if (!found) alert('Product not found yet — we\'re adding more every week! 🙏');
+  }
+
+  document.getElementById('clothingSearch').addEventListener('keypress', e => {
+    if (e.key === 'Enter') handleClothingSearch();
+  });
+
+  // FILTER
+  function filterProducts(category, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cards = document.querySelectorAll('.product-card');
+    cards.forEach(card => {
+      card.style.border = '';
+      if (category === 'all' || card.dataset.category === category) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // SORT
+  function handleSort(value) {
+    console.log('Sorting by:', value);
+    // Full sort logic can be added when real data is connected
+  }
+
+  // BRAND SUBMIT
+  function handleBrandSubmit() {
+    const input = document.querySelector('.submit-form input');
+    if (!input.value.trim()) { alert('Please enter a brand name!'); return; }
+    alert(`Thanks! We'll review "${input.value}" and add it soon 🙏`);
+    input.value = '';
+  }
+
+  // SCROLL REVEAL
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.product-card, .brand-card, .review-source-col, .step-item').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = `opacity 0.5s ${i * 0.06}s ease, transform 0.5s ${i * 0.06}s ease`;
+    observer.observe(el);
+  });
+</script>
 </body>
 </html>
